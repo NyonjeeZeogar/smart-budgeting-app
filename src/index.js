@@ -1,7 +1,14 @@
 const plaid = require ('plaid');
 const express = require('express');
 const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
 const app = express();
+
+dotenv.config();
+
+function handleError(errorMessage) {
+    console.error(errorMessage);
+}
 
 const client = new plaid.client(
     process.env.PLAID_CLIENT_ID,
@@ -11,10 +18,23 @@ const client = new plaid.client(
 );
 
 app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
     res.json({
         message: 'Hello, world',
+    });
+});
+
+app.post('/plaid_token_exchange', async (req, res) => {
+    const { publicToken } = req.body;
+
+    const { access_token } = await client.exchangePublicToken(publicToken).catch(handleError);
+    const { accounts, item } = await client.getAccounts(access_token).catch(handleError);
+
+    console.log({
+        accounts, 
+        item
     });
 });
 
