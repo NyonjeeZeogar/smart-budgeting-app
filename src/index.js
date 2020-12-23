@@ -1,6 +1,7 @@
 const plaid = require ('plaid');
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const dotenv = require('dotenv');
 const app = express();
 
@@ -14,16 +15,14 @@ const client = new plaid.client(
     process.env.PLAID_CLIENT_ID,
     process.env.PLAID_SECRET,
     process.env.PLAID_PUBLIC_KEY,
-    "sandbox"
+    palid.environment.sandbox,
 );
 
-app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-    res.json({
-        message: 'Hello, world',
-    });
+app.get('/', (req, res) => { 
+    res.sendFile(path.join(__dirname,"src/plaid-link.html"))
 });
 
 app.post('/plaid_token_exchange', async (req, res) => {
